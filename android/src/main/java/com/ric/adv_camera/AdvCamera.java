@@ -1,5 +1,4 @@
 package com.ric.adv_camera;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -66,6 +65,7 @@ public class AdvCamera implements MethodChannel.MethodCallHandler,
     private Camera.Size pictureSize;
     private String flashType = Camera.Parameters.FLASH_MODE_AUTO;
     private boolean bestPictureSize;
+    private boolean autoFocus;
 
     AdvCamera(
             int id,
@@ -103,6 +103,7 @@ public class AdvCamera implements MethodChannel.MethodCallHandler,
             Object fileNamePrefix = params.get("fileNamePrefix");
             Object maxSize = params.get("maxSize");
             Object bestPictureSize = params.get("bestPictureSize");
+            Object autoFocus = params.get("autoFocus");
 
             if (initialCamera != null) {
                 if (initialCamera.equals("front")) {
@@ -138,6 +139,9 @@ public class AdvCamera implements MethodChannel.MethodCallHandler,
 
             if (bestPictureSize != null) {
                 this.bestPictureSize = Boolean.valueOf(bestPictureSize.toString());
+            }
+            if (autoFocus != null) {
+                this.autoFocus = Boolean.valueOf(autoFocus.toString());
             }
         }
 
@@ -318,6 +322,28 @@ public class AdvCamera implements MethodChannel.MethodCallHandler,
             }
 
             result.success(true);
+        } else if (methodCall.method.equals("setAutoFocus")) {
+            if (methodCall.arguments instanceof HashMap) {
+                Map<String, Object> params = (Map<String, Object>) methodCall.arguments;
+                Object autoFocusEnabled = params.get("autoFocusEnabled");
+                if (autoFocusEnabled == null)
+                    autoFocusEnabled = false;
+                this.autoFocus = (boolean)autoFocusEnabled;
+            }
+
+            Camera.Parameters param = camera.getParameters();
+            param.setFocusMode(this.autoFocus ? Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE : Camera.Parameters.FOCUS_MODE_FIXED);
+
+            camera.stopPreview();
+            camera.setParameters(param);
+            try {
+                camera.setPreviewDisplay(surfaceHolder);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            camera.startPreview();
+
+            result.success(true);
         } else if (methodCall.method.equals("setFlashType")) {
             String flashType = "auto";
 
@@ -432,7 +458,7 @@ public class AdvCamera implements MethodChannel.MethodCallHandler,
             param.setPreviewSize(selectedSize.width, selectedSize.height);
             param.setPictureSize(pictureSize.width, pictureSize.height);
             param.setFlashMode(this.flashType);
-
+            param.setFocusMode(this.autoFocus ? Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE : Camera.Parameters.FOCUS_MODE_FIXED);
             int orientation = setCameraDisplayOrientation(0);
 
             param.setRotation(orientation);

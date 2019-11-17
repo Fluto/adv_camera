@@ -152,6 +152,13 @@ class AdvCameraController {
     print("setSavePath => $x");
   }
 
+  Future<void> setAutoFocus(bool autoFocusEnabled) async {
+    if (Platform.isIOS) return;
+    var x = await channel.invokeMethod('setAutoFocus', {"autoFocusEnabled": autoFocusEnabled});
+
+    print("setAutoFocus => $x");
+  }
+
   Future<void> setFlashType(FlashType flashType) async {
     // TODO(amirh): remove this on when the invokeMethod update makes it to stable Flutter.
     // https://github.com/flutter/flutter/issues/26431

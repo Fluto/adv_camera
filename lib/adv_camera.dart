@@ -36,6 +36,7 @@ class AdvCamera extends StatefulWidget {
   final ImageCapturedCallback onImageCaptured;
   final FlashType flashType;
   final bool bestPictureSize;
+  final bool autoFocus;
 
   const AdvCamera(
       {Key key,
@@ -44,6 +45,7 @@ class AdvCamera extends StatefulWidget {
       CameraSessionPreset cameraSessionPreset,
         FlashType flashType,
         bool bestPictureSize,
+        bool autoFocus,
       this.onCameraCreated,
       this.onImageCaptured})
       : this.initialCameraType = initialCameraType ?? CameraType.rear,
@@ -51,6 +53,7 @@ class AdvCamera extends StatefulWidget {
         this.cameraSessionPreset = cameraSessionPreset ?? CameraSessionPreset.photo,
         this.flashType = flashType ?? FlashType.auto,
         this.bestPictureSize = bestPictureSize ?? true,
+        this.autoFocus = autoFocus ?? true,
         super(key: key);
 
   @override
@@ -127,6 +130,7 @@ class _AdvCameraState extends State<AdvCamera> {
       "previewRatio": previewRatio,
       "sessionPreset": sessionPreset,
       "flashType": flashType,
+      "autoFocus": widget.autoFocus,
       "fileNamePrefix": "adv_camera",
       "bestPictureSize": widget.bestPictureSize, //for first run on Android (because on each device the default picture size is vary, for example MI 8 Lite's default is the lowest resolution)
     };
